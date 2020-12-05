@@ -1,0 +1,15 @@
+{
+    // We start this language server when we open java files.
+    "selector": "source.tex",
+    // The startup command.
+    "command": [
+        "${java_executable}",
+        "-classpath",
+        "${packages}/LSP-ltex-ls/ltex-ls-8.1.1/lib/*",
+        "-Dapp.name=ltex-ls",
+        "-Dapp.repo=${packages}/LSP-ltex-ls/ltex-ls-8.1.1/lib",
+        "-Dapp.home=${packages}/LSP-ltex-ls/ltex-ls-8.1.1",
+        "-Dbasedir=${packages}/LSP-ltex-ls/ltex-ls-8.1.1",
+        "LtexLanguageServerLauncher",
+    ],
+}
