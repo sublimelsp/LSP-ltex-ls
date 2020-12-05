@@ -22,6 +22,21 @@ class LTeXLs(AbstractPlugin):
             "java_executable": java_executable,
         }
 
+    # def m_ltex_workspaceSpecificConfiguration(self, params, request_id):
+    #     session = self.weaksession()
+    #     if not session:
+    #         return
+    #     # requests require a response
+    #     session.send_response(Response(request_id, {"hello": "there"}))
+
+    def m_ltex_progress(self, params):
+        # notification do not require a response
+        # TODO: Allow printing progress
+        pass
+
+    # TODO Overwrite needs_update_or_installation
+    # and install_or_update. Use storage_path(cls)
+
 
 def plugin_loaded() -> None:
     register_plugin(LTeXLs)
