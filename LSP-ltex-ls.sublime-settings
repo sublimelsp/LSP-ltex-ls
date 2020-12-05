@@ -1,6 +1,15 @@
 {
-    // We start this language server when we open java files.
-    "selector": "source.tex",
+    // We start this language server when we open LaTex files.
+    "languages": [
+        {
+            "languageId": "latex",
+            "document_selector": "text.tex.latex",
+        },
+        {
+            "languageId": "bibtex",
+            "document_selector": "text.bibtex",
+        },
+    ],
     // The startup command.
     "command": [
         "${java_executable}",
