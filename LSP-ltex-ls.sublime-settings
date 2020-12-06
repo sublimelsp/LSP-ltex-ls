@@ -14,16 +14,20 @@
     "command": [
         "${java_executable}",
         "-classpath",
-        "${packages}/LSP-ltex-ls/ltex-ls-8.1.1/lib/*",
+        "${serverdir}/lib/*",
         "-Dapp.name=ltex-ls",
-        "-Dapp.repo=${packages}/LSP-ltex-ls/ltex-ls-8.1.1/lib",
-        "-Dapp.home=${packages}/LSP-ltex-ls/ltex-ls-8.1.1",
-        "-Dbasedir=${packages}/LSP-ltex-ls/ltex-ls-8.1.1",
+        "-Dapp.repo=${serverdir}/lib",
+        "-Dapp.home=${serverdir}",
+        "-Dbasedir=${serverdir}",
         "LtexLanguageServerLauncher",
     ],
+    // The version of the server to use.
+    "version": "",
     // The server-specific settings.
     "settings": {
         "ltex.enabled": ["markdown", "latex", "rsweave"],
+        // Default language. 
+        // Can be overwritten by using "% LTeX: language=xx-XX" comments
         "ltex.language":"en-US",
         "ltex.dictionary": {},
         "ltex.disabledRules": {},
@@ -39,7 +43,7 @@
         "ltex.additionalRules.languageModel": "",
         "ltex.additionalRules.neuralNetworkModel": "",
         "ltex.additionalRules.word2VecModel": "",
-        "ltex.ltex-ls.path": "${packages}/LSP-ltex-ls/ltex-ls-8.1.1",
+        "ltex.ltex-ls.path": "${serverdir}",
         "ltex.ltex-ls.languageToolHttpServerUri": "",
         "ltex.ltex-ls.logLevel": "fine",
         "ltex.java.path": "",
@@ -52,8 +56,8 @@
         "ltex.clearDiagnosticsWhenClosingFile": true,
         // shows ltex status messages in sublime status bar
         "ltex.statusBarItem": false,
-        // Debug setting to log the communication between language client and server. Default "off".
-        "ltex.trace.server": "verbose",
+        // Debug setting to log the communication between language client and server.
+        "ltex.trace.server": "off",
         "ltex.commands": {},
         "ltex.workspaceDictionary": {},
         "ltex.workspaceFolderDictionary": {},
