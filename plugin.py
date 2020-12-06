@@ -37,7 +37,6 @@ class LTeXLs(AbstractPlugin):
                 "enabledRules": {},
                 "hiddenFalsePositives": {},
                 })
-        # requests require a response
         session.send_response(Response(request_id, result))
 
     def m_ltex_progress(self, params):
