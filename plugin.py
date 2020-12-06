@@ -3,6 +3,7 @@ from LSP.plugin import register_plugin
 from LSP.plugin import unregister_plugin
 from LSP.plugin.core.typing import Optional, Dict
 import os
+import sublime
 
 
 class LTeXLs(AbstractPlugin):
@@ -31,8 +32,20 @@ class LTeXLs(AbstractPlugin):
 
     def m_ltex_progress(self, params):
         # notification do not require a response
-        # TODO: Allow printing progress
-        pass
+        settings = sublime.load_settings("LSP-ltex-ls.sublime-settings")
+        if not settings.get('settings').get('ltex.statusBarItem'):
+            return
+        if not params or not params['operation']:
+            return
+        if params['operation'] == 'checkDocument':
+            if (params['progress'] == 0):
+                sublime.status_message('ltex checking: {}'
+                                       .format(params['uri']))
+            else:
+                sublime.status_message('ltex finished: {}'
+                                       .format(params['uri']))
+        else:
+            sublime.status_message('ltex unknown operation')
 
     # TODO Overwrite needs_update_or_installation
     # and install_or_update. Use storage_path(cls)

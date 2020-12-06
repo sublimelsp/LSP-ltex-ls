@@ -48,6 +48,7 @@
         "ltex.diagnosticSeverity": "information",
         "ltex.checkFrequency": "edit",
         "ltex.clearDiagnosticsWhenClosingFile": true,
+        // shows ltex status messages in sublime status bar
         "ltex.statusBarItem": false,
         "ltex.trace.server": "off",
     }
