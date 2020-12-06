@@ -1,2 +1,14 @@
 LSP-ltex-ls
 -------------------------------
+
+# Installation
+
+Install [LSP](https://packagecontrol.io/packages/LSP) via Package Control.
+Make sure ```java``` is in path and ```JAVA_HOME``` is set.
+
+
+# Language
+
+- Set the language string in the server settings
+- Use comments in latex code, e.g. % LTeX: language=<language_string>
+    -> <language_string> could be for example de-DE, en-EN,...
