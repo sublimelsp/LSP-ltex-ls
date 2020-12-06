@@ -48,16 +48,13 @@ class LTeXLs(AbstractPlugin):
             return
         if params['operation'] == 'checkDocument':
             if (params['progress'] == 0):
-                sublime.status_message('ltex checking: {}'
+                sublime.status_message('ltex-ls: checking: {}'
                                        .format(params['uri']))
             else:
-                sublime.status_message('ltex finished: {}'
+                sublime.status_message('ltex-ls: finished: {}'
                                        .format(params['uri']))
         else:
-            sublime.status_message('ltex unknown operation')
-
-    # TODO Overwrite needs_update_or_installation
-    # and install_or_update. Use storage_path(cls)
+            sublime.status_message('ltex-ls: unknown operation')
 
 
 def plugin_loaded() -> None:
