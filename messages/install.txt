@@ -1,6 +1,9 @@
 LSP-ltex-ls
 -------------------------------
 
+Latex/Markdown grammer check support for Sublime's LSP plugin provided through 
+https://github.com/valentjn/ltex-ls.
+
 # Installation
 
 Install [LSP](https://packagecontrol.io/packages/LSP) via Package Control.
@@ -12,3 +15,8 @@ Make sure ```java``` is in path and ```JAVA_HOME``` is set.
 - Set the language string in the server settings
 - Use comments in latex code, e.g. % LTeX: language=<language_string>
     -> <language_string> could be for example de-DE, en-EN,...
+
+
+More information: 
+https://github.com/LDAP/LSP-ltex-ls
+https://github.com/valentjn/ltex-ls
