@@ -1,7 +1,8 @@
 {
    "*": {
       "*": [
-         "requests"
+         "requests",
+         "sublime_lib"
       ]
    }
 }

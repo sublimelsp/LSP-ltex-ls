@@ -5,6 +5,7 @@ from LSP.plugin import Response
 from LSP.plugin import ClientConfig
 from LSP.plugin import WorkspaceFolder
 from LSP.plugin.core.typing import Optional, Dict, List
+from sublime_lib import ActivityIndicator
 import os
 import sublime
 import shutil
@@ -100,6 +101,11 @@ fetch_latest_release()
 
 
 class LTeXLs(AbstractPlugin):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._activity_indicator = None
+        self._activity_uris = set()
+
     @classmethod
     def name(cls) -> str:
         return "ltex-ls"
@@ -246,13 +252,28 @@ class LTeXLs(AbstractPlugin):
             return
         if params['operation'] == 'checkDocument':
             if (params['progress'] == 0):
-                sublime.status_message('ltex-ls: checking: {}'
-                                       .format(params['uri']))
+                self._activity_uris.add(params['uri'])
             else:
-                sublime.status_message('ltex-ls: finished: {}'
-                                       .format(params['uri']))
+                self._activity_uris.discard(params['uri'])
         else:
-            sublime.status_message('ltex-ls: unknown operation')
+            sublime.status_message('ltex-ls: unknown operation running')
+        self.update_activity_indicator()
+
+    def update_activity_indicator(self):
+        msg = 'ltex-ls: checking {} document(s)'\
+            .format(len(self._activity_uris))
+        if self._activity_indicator:
+            if len(self._activity_uris):
+                self._activity_indicator.label = msg
+                self._activity_indicator.update()
+            else:
+                self._activity_indicator.stop()
+                self._activity_indicator = None
+        else:
+            view = sublime.active_window().active_view()
+            if view:
+                self._activity_indicator = ActivityIndicator(view, msg)
+                self._activity_indicator.start()
 
 
 def plugin_loaded() -> None:
