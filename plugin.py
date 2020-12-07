@@ -146,7 +146,8 @@ class LTeXLs(AbstractPlugin):
         if len(offline_dir_split) != 3:
             return None
         version = offline_dir_split[2]
-        print('ltex-ls: no internet connection available, using server {}'.format(version))
+        sublime.status_message('ltex-ls: no internet connection available, '
+                               'using server {}'.format(version))
         return version
 
     @classmethod
@@ -228,7 +229,6 @@ class LTeXLs(AbstractPlugin):
             return
         result = []
         for item in params['items']:
-            print(item)
             result.append({
                 "dictionary": {},
                 "disabledRules": {},
