@@ -15,7 +15,7 @@
     "command": [
         "${java_executable}",
         "-classpath",
-        "${serverdir}/lib/*",
+        "${serverdir}/lib/ltexls-languagetool-patch-${serverversion}.jar;${serverdir}/lib/*",
         "-Dapp.name=ltex-ls",
         "-Dapp.repo=${serverdir}/lib",
         "-Dapp.home=${serverdir}",

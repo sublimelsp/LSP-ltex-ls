@@ -105,22 +105,6 @@ class LTeXLs(AbstractPlugin):
         return "ltex-ls"
 
     @classmethod
-    def serverversion(cls) -> str:
-        """
-        Returns the versionof ltex-ls to use. Can be None if
-        no connection is available and no version is set in settings.
-
-        :param      cls:  The class
-        :type       cls:  type
-
-        :returns:   The version of ltex-ls to use. Can be None.
-        :rtype:     str
-        """
-        settings = sublime.load_settings(SETTINGS_FILENAME)
-        version = settings.get('version')
-        return version or LATEST_RELEASE_TAG
-
-    @classmethod
     def basedir(cls) -> str:
         """
         The directry of this plugin in Package Storage.
@@ -134,7 +118,40 @@ class LTeXLs(AbstractPlugin):
         return os.path.join(cls.storage_path(), STORAGE_FOLDER_NAME)
 
     @classmethod
-    def serverdir(cls) -> str:
+    def serverversion(cls):
+        """
+        Returns the version of ltex-ls to use. Can be None if
+        no version is set in settings and no connection is available and 
+        and no server is available offline.
+
+        :param      cls:  The class
+        :type       cls:  type
+
+        :returns:   The version of ltex-ls to use. Can be None.
+        :rtype:     str
+        """
+        settings = sublime.load_settings(SETTINGS_FILENAME)
+        version = settings.get('version')
+        if version:
+            return version
+        if LATEST_RELEASE_TAG:
+            return LATEST_RELEASE_TAG
+        # Server offline
+        if not os.path.isdir(cls.basedir()):
+            return None
+        offline_dir = os.listdir(cls.basedir())
+        if not offline_dir:
+            return None
+        offline_dir_split = offline_dir[0].split('-')
+        if len(offline_dir_split) != 3:
+            return None
+        version = offline_dir_split[2]
+        sublime.status_message('ltex-ls: no internet connection available, '
+                               'using server {}'.format(version))
+        return version
+
+    @classmethod
+    def serverdir(cls):
         """
         The directory of the server. In here are the "bin" and "lib"
         folders.
@@ -143,24 +160,23 @@ class LTeXLs(AbstractPlugin):
         :type       cls:  type
 
         :returns:   The server directory if a version can be determined.
-                    If not the last used server directory or None if none
-                    if found.
+                    Else None
         :rtype:     str
         """
         if cls.serverversion():
             return os.path.join(cls.basedir(), SERVER_FOLDER_NAME
                                 .format(cls.serverversion()))
         else:
-            if not os.path.isdir(cls.basedir()):
-                return None
-            offline = os.listdir(cls.basedir())
-            if offline:
-                return os.path.join(cls.basedir(), offline[0])
-        return None
+            return None
 
     @classmethod
     def needs_update_or_installation(cls) -> bool:
-        return not cls.serverdir() or not os.path.isdir(cls.serverdir())
+        if cls.serverdir():
+            if os.path.isdir(str(cls.serverdir())):
+                return False
+            else:
+                return True
+        return False
 
     @classmethod
     def additional_variables(cls) -> Optional[Dict[str, str]]:
@@ -172,7 +188,8 @@ class LTeXLs(AbstractPlugin):
             java_executable = "java"
         return {
             "java_executable": java_executable,
-            "serverdir": cls.serverdir()
+            "serverdir": cls.serverdir(),
+            "serverversion": cls.serverversion()
         }
 
     @classmethod
@@ -212,7 +229,6 @@ class LTeXLs(AbstractPlugin):
             return
         result = []
         for item in params['items']:
-            print(item)
             result.append({
                 "dictionary": {},
                 "disabledRules": {},
