@@ -57,7 +57,7 @@
         "ltex.diagnosticSeverity": "information",
         "ltex.checkFrequency": "edit",
         "ltex.clearDiagnosticsWhenClosingFile": true,
-        // shows ltex status messages in sublime status bar
+        // shows an activity indicator in sublime status bar
         "ltex.statusBarItem": false,
         // Debug setting to log the communication between language client and server.
         "ltex.trace.server": "off",
