@@ -22,7 +22,9 @@
         "-Dbasedir=${serverdir}",
         "LtexLanguageServerLauncher",
     ],
-    // The version of the server to use.
+    // The version of the server to use. "" or a GitHub release tag
+    // "" uses the latest release available or the last downloaded version
+    // if no internet connection is available.
     "version": "",
     // The server-specific settings.
     "settings": {

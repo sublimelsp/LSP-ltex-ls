@@ -2,7 +2,9 @@ from LSP.plugin import AbstractPlugin
 from LSP.plugin import register_plugin
 from LSP.plugin import unregister_plugin
 from LSP.plugin import Response
-from LSP.plugin.core.typing import Optional, Dict
+from LSP.plugin import ClientConfig
+from LSP.plugin import WorkspaceFolder
+from LSP.plugin.core.typing import Optional, Dict, List
 import os
 import sublime
 import shutil
@@ -12,10 +14,12 @@ import time
 import tarfile
 
 
-DOWNLOAD_BASE_URL = 'https://github.com/valentjn/ltex-ls/releases/download/'\
-                    '{0}/ltex-ls-{0}.tar.gz'
-SERVER_FOLDER_NAME = 'ltex-ls-{}'
-DEFAULT_VERSION = '8.1.1'
+GITHUB_DL_URL = 'https://github.com/valentjn/ltex-ls/releases/download/'\
+                    '{0}/ltex-ls-{0}.tar.gz'  # Format with Release-Tag
+GITHUB_RELEASES_API_URL = 'https://api.github.com/repos/valentjn/ltex-'\
+                          'ls/releases/latest'
+SERVER_FOLDER_NAME = 'ltex-ls-{}'  # Format with Release-Tag
+LATEST_RELEASE_TAG = None
 STORAGE_FOLDER_NAME = 'LSP-ltex-ls'
 SETTINGS_FILENAME = 'LSP-ltex-ls.sublime-settings'
 
@@ -74,6 +78,21 @@ def download_file(url, file_name, show_progress) -> None:
     show_progress(1, 1)
 
 
+def fetch_latest_release() -> None:
+    global LATEST_RELEASE_TAG
+
+    if (LATEST_RELEASE_TAG is None):
+        try:
+            resp = requests.get(GITHUB_RELEASES_API_URL)
+            data = resp.json()
+            LATEST_RELEASE_TAG = data['tag_name']
+        except requests.ConnectionError:
+            LATEST_RELEASE_TAG = None
+
+
+fetch_latest_release()
+
+
 class LTeXLs(AbstractPlugin):
     @classmethod
     def name(cls) -> str:
@@ -83,7 +102,7 @@ class LTeXLs(AbstractPlugin):
     def serverversion(cls) -> str:
         settings = sublime.load_settings(SETTINGS_FILENAME)
         version = settings.get('version')
-        return version or DEFAULT_VERSION
+        return version or LATEST_RELEASE_TAG
 
     @classmethod
     def basedir(cls) -> str:
@@ -91,12 +110,20 @@ class LTeXLs(AbstractPlugin):
 
     @classmethod
     def serverdir(cls) -> str:
-        return os.path.join(cls.basedir(), SERVER_FOLDER_NAME.format(
-            cls.serverversion()))
+        if cls.serverversion():
+            return os.path.join(cls.basedir(), SERVER_FOLDER_NAME
+                                .format(cls.serverversion()))
+        else:
+            if not os.path.isdir(cls.basedir()):
+                return None
+            offline = os.listdir(cls.basedir())
+            if offline:
+                return os.path.join(cls.basedir(), offline[0])
+        return None
 
     @classmethod
     def needs_update_or_installation(cls) -> bool:
-        return not os.path.isdir(cls.serverdir())
+        return not cls.serverdir() or not os.path.isdir(cls.serverdir())
 
     @classmethod
     def additional_variables(cls) -> Optional[Dict[str, str]]:
@@ -113,13 +140,14 @@ class LTeXLs(AbstractPlugin):
 
     @classmethod
     def install_or_update(cls) -> None:
+        if not cls.serverversion():
+            return
         if os.path.isdir(cls.basedir()):
             shutil.rmtree(cls.basedir())
         os.makedirs(cls.basedir())
         with tempfile.TemporaryDirectory() as tempdir:
-            print('using tempdir {}'.format(tempdir))
             tar_path = os.path.join(tempdir, 'server.tar.gz')
-            download_file(DOWNLOAD_BASE_URL.format(cls.serverversion()),
+            download_file(GITHUB_DL_URL.format(cls.serverversion()),
                           tar_path,
                           show_download_progress)
             sublime.status_message('ltex-ls: extracting')
@@ -131,6 +159,14 @@ class LTeXLs(AbstractPlugin):
                         cls.basedir())
             sublime.status_message('ltex-ls: installed ltex-ls {}'.format(
                                     cls.serverversion()))
+
+    @classmethod
+    def can_start(cls, window: sublime.Window, initiating_view: sublime.View,
+                  workspace_folders: List[WorkspaceFolder],
+                  configuration: ClientConfig) -> Optional[str]:
+        if not cls.serverdir():
+            return 'Download failed or version could not be determined.'
+        return None
 
     # Handle protocol extensions
 
