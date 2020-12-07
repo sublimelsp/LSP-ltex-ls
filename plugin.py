@@ -79,6 +79,12 @@ def download_file(url, file_name, show_progress) -> None:
 
 
 def fetch_latest_release() -> None:
+    """
+    Fetches a the latest release via GitHub API.
+
+    :returns:   Nothing.
+    :rtype:     None
+    """
     global LATEST_RELEASE_TAG
 
     if (LATEST_RELEASE_TAG is None):
@@ -100,16 +106,47 @@ class LTeXLs(AbstractPlugin):
 
     @classmethod
     def serverversion(cls) -> str:
+        """
+        Returns the versionof ltex-ls to use. Can be None if
+        no connection is available and no version is set in settings.
+
+        :param      cls:  The class
+        :type       cls:  type
+
+        :returns:   The version of ltex-ls to use. Can be None.
+        :rtype:     str
+        """
         settings = sublime.load_settings(SETTINGS_FILENAME)
         version = settings.get('version')
         return version or LATEST_RELEASE_TAG
 
     @classmethod
     def basedir(cls) -> str:
+        """
+        The directry of this plugin in Package Storage.
+
+        :param      cls:  The class
+        :type       cls:  type
+
+        :returns:   The path this plugins base directory
+        :rtype:     str
+        """
         return os.path.join(cls.storage_path(), STORAGE_FOLDER_NAME)
 
     @classmethod
     def serverdir(cls) -> str:
+        """
+        The directory of the server. In here are the "bin" and "lib"
+        folders.
+
+        :param      cls:  The class
+        :type       cls:  type
+
+        :returns:   The server directory if a version can be determined.
+                    If not the last used server directory or None if none
+                    if found.
+        :rtype:     str
+        """
         if cls.serverversion():
             return os.path.join(cls.basedir(), SERVER_FOLDER_NAME
                                 .format(cls.serverversion()))
@@ -169,7 +206,6 @@ class LTeXLs(AbstractPlugin):
         return None
 
     # Handle protocol extensions
-
     def m_ltex_workspaceSpecificConfiguration(self, params, request_id):
         session = self.weaksession()
         if not session:
