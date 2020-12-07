@@ -2,7 +2,7 @@
 
 > THIS IS STILL WORK-IN-PROGRESS!
 
-Latex/Markdown grammer check support for Sublime's LSP plugin provided through [valentjn/ltex-ls](https://github.com/valentjn/ltex-ls).
+Latex/Markdown grammar check support for Sublime's LSP plugin provided through [valentjn/ltex-ls](https://github.com/valentjn/ltex-ls).
 
 ## Installation
 
