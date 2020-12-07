@@ -27,6 +27,7 @@
     // if no internet connection is available.
     "version": "",
     // The server-specific settings.
+    // @see https://valentjn.github.io/vscode-ltex/docs/settings.html
     "settings": {
         "ltex.enabled": ["markdown", "latex", "rsweave"],
         // Default language. 
