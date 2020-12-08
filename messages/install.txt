@@ -6,8 +6,8 @@ https://github.com/valentjn/ltex-ls.
 
 # Installation
 
-Install [LSP](https://packagecontrol.io/packages/LSP) via Package Control.
-Make sure ```java``` is in path and ```JAVA_HOME``` is set.
+- Make sure [LSP](https://packagecontrol.io/packages/LSP) is installed.
+- Make sure `java` is in path and `JAVA_HOME` is set.
 
 
 # Language
