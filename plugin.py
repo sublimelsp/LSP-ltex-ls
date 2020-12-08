@@ -5,7 +5,7 @@ from LSP.plugin import Response
 from LSP.plugin import ClientConfig
 from LSP.plugin import WorkspaceFolder
 from LSP.plugin.core.typing import Optional, Dict, List
-from sublime_lib import ActivityIndicator
+from sublime_lib import ActivityIndicator  # Use version from lsp_utils
 import os
 import sublime
 import shutil
@@ -270,9 +270,9 @@ class LTeXLs(AbstractPlugin):
                 self._activity_indicator.stop()
                 self._activity_indicator = None
         else:
-            view = sublime.active_window().active_view()
-            if view:
-                self._activity_indicator = ActivityIndicator(view, msg)
+            window = sublime.active_window()
+            if window:
+                self._activity_indicator = ActivityIndicator(window, msg)
                 self._activity_indicator.start()
 
 
