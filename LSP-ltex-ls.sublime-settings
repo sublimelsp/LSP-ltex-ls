@@ -27,40 +27,73 @@
     // if no internet connection is available.
     "version": "",
     // The server-specific settings.
+    // @see https://valentjn.github.io/vscode-ltex/docs/settings.html
     "settings": {
         "ltex.enabled": ["markdown", "latex", "rsweave"],
         // Default language. 
         // Can be overwritten by using "% LTeX: language=xx-XX" comments
         "ltex.language":"en-US",
+        //Lists of additional words that should not be counted as spelling errors.
+        // @see https://valentjn.github.io/vscode-ltex/docs/settings.html#ltexdisabledrules
         "ltex.dictionary": {},
+        // Lists of rules that should be disabled (if enabled by default by LanguageTool).
         "ltex.disabledRules": {},
+        // Lists of rules that should be enabled (if disabled by default by LanguageTool).
         "ltex.enabledRules": {},
+        // Lists of false-positive diagnostics to hide 
+        // (by hiding all diagnostics of a specific rule will in a specific sentence).
         "ltex.hiddenFalsePositives": {},
+        // List of LATEX commands to be handled by the LATEX parser, listed together with empty arguments
         "ltex.latex.commands": [],
+        // List of names of LATEX environments to be handled by the LATEX parser.
         "ltex.latex.environments": [],
+        // List of Markdown node types to be handled by the Markdown parser.
         "ltex.markdown.nodes": [],
         "ltex.markdown.ignore": [],
         "ltex.markdown.dummy": [],
-        "ltex.configurationTarget": {"dictionary": "workspaceFolder", "disabledRules": "workspaceFolder", "hiddenFalsePositives": "workspaceFolder"},
+        // @see https://valentjn.github.io/vscode-ltex/docs/settings.html#ltexconfigurationtarget
+        "ltex.configurationTarget": {
+            "dictionary": "workspaceFolderExternalFile", 
+            "disabledRules": "workspaceFolderExternalFile", 
+            "hiddenFalsePositives": "workspaceFolderExternalFile"
+        },
+        // Optional mother tongue of the user (e.g., "de-DE").
         "ltex.additionalRules.motherTongue": "",
+        // Optional path to a directory with rules of a language model with n-gram occurrence counts.
         "ltex.additionalRules.languageModel": "",
+        // Optional path to a directory with rules of a pretrained neural network model.
         "ltex.additionalRules.neuralNetworkModel": "",
+        // Optional path to a directory with rules of a word2vec language model.
         "ltex.additionalRules.word2VecModel": "",
+        // The root directory of ltex-ls
         "ltex.ltex-ls.path": "${serverdir}",
+        // If set to a non-empty string, LTEX will not use the bundled, 
+        // built-in version of LanguageTool. Instead, LTEX will connect to an external
+        // Setting is ignored running on Sublime Text
         "ltex.ltex-ls.languageToolHttpServerUri": "",
+        // Logging level (verbosity) of the ltex-ls server log
         "ltex.ltex-ls.logLevel": "fine",
+        // Debug setting to log the communication between language client and server.
+        "ltex.trace.server": "off",
+        // Size of the LanguageTool ResultCache in sentences (must be a positive integer).
+        "ltex.sentenceCacheSize": 2000,
+        // Severity of the diagnostics corresponding to the grammar and spelling errors.
+        "ltex.diagnosticSeverity": "information",
+
+        // shows ltex status in sublime status bar
+        "ltex.statusBarItem": false,
+
+        // Controls when documents should be checked.
+        // One of "edit", "save", and "manual".
+        "ltex.checkFrequency": "edit",
+        // If set to true, diagnostics of a file are cleared when the file is closed
+        "ltex.clearDiagnosticsWhenClosingFile": true,
+        
         "ltex.java.path": "",
         "ltex.java.forceTrySystemWide": true,
         "ltex.java.initialHeapSize": 64,
         "ltex.java.maximumHeapSize": 512,
-        "ltex.sentenceCacheSize": 2000,
-        "ltex.diagnosticSeverity": "information",
-        "ltex.checkFrequency": "edit",
-        "ltex.clearDiagnosticsWhenClosingFile": true,
-        // shows ltex status messages in sublime status bar
-        "ltex.statusBarItem": false,
-        // Debug setting to log the communication between language client and server.
-        "ltex.trace.server": "off",
+        
         "ltex.commands": {},
         "ltex.workspaceDictionary": {},
         "ltex.workspaceFolderDictionary": {},
