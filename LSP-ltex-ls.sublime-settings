@@ -34,7 +34,7 @@
         // Can be overwritten by using "% LTeX: language=xx-XX" comments
         "ltex.language":"en-US",
         //Lists of additional words that should not be counted as spelling errors.
-        // @see https://valentjn.github.io/vscode-ltex/docs/settings.html#ltexdisabledrules
+        // @see https://valentjn.github.io/vscode-ltex/docs/settings.html#ltexdictionary
         "ltex.dictionary": {},
         // Lists of rules that should be disabled (if enabled by default by LanguageTool).
         "ltex.disabledRules": {},
