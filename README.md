@@ -32,9 +32,4 @@ Here are some ways to configure the package and the language server.
 
 ### Language Configuration
 - Set the language string in the server settings
-- Use comments in latex code, e.g.
-```latex
-This is linted with English grammar.
-% LTeX: language=de-DE
-Geprüft mit deutscher Grammatik.
-```
+- Use magic comments in latex code, see https://valentjn.github.io/vscode-ltex/docs/advanced-usage.html#magic-comments
