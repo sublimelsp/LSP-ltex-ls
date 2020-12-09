@@ -12,8 +12,11 @@
         }
     ],
     // The startup command.
+    // Do not change this unless you know what you do!
     "command": [
         "${java_executable}",
+        "-Xms64m",
+        "-Xmx512m",
         "-classpath",
         "${serverdir}/lib/ltexls-languagetool-patch-${serverversion}.jar;${serverdir}/lib/*",
         "-Dapp.name=ltex-ls",
@@ -31,10 +34,10 @@
     "settings": {
         "ltex.enabled": ["markdown", "latex", "rsweave"],
         // Default language. 
-        // Can be overwritten by using "% LTeX: language=xx-XX" comments
+        // @see https://valentjn.github.io/vscode-ltex/docs/advanced-usage.html#magic-comments
         "ltex.language":"en-US",
         //Lists of additional words that should not be counted as spelling errors.
-        // @see https://valentjn.github.io/vscode-ltex/docs/settings.html#ltexdisabledrules
+        // @see https://valentjn.github.io/vscode-ltex/docs/settings.html#ltexdictionary
         "ltex.dictionary": {},
         // Lists of rules that should be disabled (if enabled by default by LanguageTool).
         "ltex.disabledRules": {},
@@ -53,9 +56,9 @@
         "ltex.markdown.dummy": [],
         // @see https://valentjn.github.io/vscode-ltex/docs/settings.html#ltexconfigurationtarget
         "ltex.configurationTarget": {
-            "dictionary": "workspaceFolderExternalFile", 
-            "disabledRules": "workspaceFolderExternalFile", 
-            "hiddenFalsePositives": "workspaceFolderExternalFile"
+            "dictionary": "user", 
+            "disabledRules": "user", 
+            "hiddenFalsePositives": "user"
         },
         // Optional mother tongue of the user (e.g., "de-DE").
         "ltex.additionalRules.motherTongue": "",
@@ -65,11 +68,8 @@
         "ltex.additionalRules.neuralNetworkModel": "",
         // Optional path to a directory with rules of a word2vec language model.
         "ltex.additionalRules.word2VecModel": "",
-        // The root directory of ltex-ls
-        "ltex.ltex-ls.path": "${serverdir}",
         // If set to a non-empty string, LTEX will not use the bundled, 
-        // built-in version of LanguageTool. Instead, LTEX will connect to an external
-        // Setting is ignored running on Sublime Text
+        // built-in version of LanguageTool. Instead, LTEX will connect to an external one
         "ltex.ltex-ls.languageToolHttpServerUri": "",
         // Logging level (verbosity) of the ltex-ls server log
         "ltex.ltex-ls.logLevel": "fine",
@@ -84,23 +84,9 @@
         "ltex.statusBarItem": false,
 
         // Controls when documents should be checked.
-        // One of "edit", "save", and "manual".
+        // One of "edit", "save", and "manual" (vscode-only).
         "ltex.checkFrequency": "edit",
         // If set to true, diagnostics of a file are cleared when the file is closed
         "ltex.clearDiagnosticsWhenClosingFile": true,
-        
-        "ltex.java.path": "",
-        "ltex.java.forceTrySystemWide": true,
-        "ltex.java.initialHeapSize": 64,
-        "ltex.java.maximumHeapSize": 512,
-        
-        "ltex.commands": {},
-        "ltex.workspaceDictionary": {},
-        "ltex.workspaceFolderDictionary": {},
-        "ltex.workspaceDisabledRules": {},
-        "ltex.workspaceFolderDisabledRules": {},
-        "ltex.workspaceEnabledRules": {},
-        "ltex.workspaceFolderEnabledRules": {},
-        "ltex.environments": {}
     }
 }

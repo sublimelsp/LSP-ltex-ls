@@ -4,7 +4,7 @@ Latex/Markdown grammar check support for Sublime's LSP plugin provided through [
 
 ## Installation
 
-1. Install [LSP](https://packagecontrol.io/packages/LSP) via Package Control. Make sure ```java``` is in path and ```JAVA_HOME``` is set.
+1. Install [LSP](https://packagecontrol.io/packages/LSP) via Package Control. Make sure `java` is in path and `JAVA_HOME` is set.
 2. Install this plugin.
 3. Restart Sublime.
 
@@ -32,9 +32,8 @@ Here are some ways to configure the package and the language server.
 
 ### Language Configuration
 - Set the language string in the server settings
-- Use comments in latex code, e.g.
-```latex
-This is linted with English grammar.
-% LTeX: language=de-DE
-Geprüft mit deutscher Grammatik.
-```
+- Use magic comments in latex code, see https://valentjn.github.io/vscode-ltex/docs/advanced-usage.html#magic-comments
+
+### Limitations
+
+This version lacks in comparison to [vscode-ltex](https://github.com/valentjn/vscode-ltex) the possibility to add exceptions (rules, words, …) on a per-project basis. (Maybe added in the future.)
