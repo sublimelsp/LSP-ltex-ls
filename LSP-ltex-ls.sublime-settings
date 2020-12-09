@@ -55,6 +55,7 @@
         "ltex.markdown.ignore": [],
         "ltex.markdown.dummy": [],
         // @see https://valentjn.github.io/vscode-ltex/docs/settings.html#ltexconfigurationtarget
+        // vscode-only. Sublime will ignore the settings (for now)
         "ltex.configurationTarget": {
             "dictionary": "user", 
             "disabledRules": "user", 
