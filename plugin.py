@@ -99,18 +99,20 @@ def fetch_latest_release() -> None:
 fetch_latest_release()
 
 
-def add_server_setting(key: str, value):
+def code_action_insert_settings(server_setting_key: str, value: dict):
     """
-    Adds a server setting. Merges if the setting is already present.
+    Adds a server setting initiated via custom ltex-la codeAction. 
+    Merges the settings if already present.
     This function is used for the addToDictionary,... custom commands
-    :param      key:    The key
-    :type       key:    str
-    :param      value:  The value
+    :param      server_setting_key:    The key of the server setting 
+                                       (in "settings" block)
+    :type       server_setting_key:    str
+    :param      value:  A dict of "language": [settings] pairs
     :type       value:  dict
     """
     settings = sublime.load_settings(SETTINGS_FILENAME)
     server_settings = settings.get('settings')
-    exception_dict = server_settings.get(key, {})
+    exception_dict = server_settings.get(server_setting_key, {})
 
     for k, val in value.items():
         language_setting = exception_dict.get(k, [])
@@ -118,7 +120,7 @@ def add_server_setting(key: str, value):
         new_language_setting = list(set(language_setting + val))
         exception_dict[k] = new_language_setting
 
-    server_settings[key] = exception_dict
+    server_settings[server_setting_key] = exception_dict
     settings.set('settings', server_settings)
     sublime.save_settings(SETTINGS_FILENAME)
     pass
@@ -257,16 +259,16 @@ class LTeXLs(AbstractPlugin):
         cmd = command["command"]
         handled = False
         if cmd == "ltex.addToDictionary":
-            add_server_setting('ltex.dictionary', 
-                               command['arguments'][0]['words'])
+            code_action_insert_settings('ltex.dictionary', 
+                                        command['arguments'][0]['words'])
             handled = True
         if cmd == 'ltex.hideFalsePositives':
-            add_server_setting('ltex.hiddenFalsePositives', 
-                               command['arguments'][0]['falsePositives'])
+            code_action_insert_settings('ltex.hiddenFalsePositives', 
+                                        command['arguments'][0]['falsePositives']) # noqa
             handled = True
         if cmd == 'ltex.disableRules':
-            add_server_setting('ltex.disabledRules', 
-                               command['arguments'][0]['ruleIds'])
+            code_action_insert_settings('ltex.disabledRules', 
+                                        command['arguments'][0]['ruleIds'])
             handled = True
 
         if handled:
