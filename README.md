@@ -32,7 +32,7 @@ Here are some ways to configure the package and the language server.
 
 ### Language Configuration
 - Set the language string in the server settings
-- Use magic comments in latex code, see https://valentjn.github.io/vscode-ltex/docs/advanced-usage.html#magic-comments
+- Use magic comments in code, see https://valentjn.github.io/vscode-ltex/docs/advanced-usage.html#magic-comments
 
 ### Limitations
 
