@@ -4,7 +4,7 @@ from LSP.plugin import unregister_plugin
 from LSP.plugin import Response
 from LSP.plugin import ClientConfig
 from LSP.plugin import WorkspaceFolder
-from LSP.plugin.core.typing import Optional, Dict, List
+from LSP.plugin.core.typing import Optional, Dict, List, Mapping, Any, Callable
 import os
 import sublime
 import shutil
@@ -97,6 +97,31 @@ def fetch_latest_release() -> None:
 
 
 fetch_latest_release()
+
+
+def add_server_setting(key: str, value):
+    """
+    Adds a server setting. Merges if the setting is already present.
+    This function is used for the addToDictionary,... custom commands
+    :param      key:    The key
+    :type       key:    str
+    :param      value:  The value
+    :type       value:  dict
+    """
+    settings = sublime.load_settings(SETTINGS_FILENAME)
+    server_settings = settings.get('settings')
+    exception_dict = server_settings.get(key, {})
+
+    for k, val in value.items():
+        language_setting = exception_dict.get(k, [])
+        # Remove duplicates
+        new_language_setting = list(set(language_setting + val))
+        exception_dict[k] = new_language_setting
+
+    server_settings[key] = exception_dict
+    settings.set('settings', server_settings)
+    sublime.save_settings(SETTINGS_FILENAME)
+    pass
 
 
 class LTeXLs(AbstractPlugin):
@@ -222,18 +247,51 @@ class LTeXLs(AbstractPlugin):
             return 'Download failed or version could not be determined.'
         return None
 
+    # Handle custom commands
+    def on_pre_server_command(self, command: Mapping[str, Any], 
+                              done: Callable[[], None]) -> bool:
+        session = self.weaksession()
+        if not session:
+            return False
+
+        cmd = command["command"]
+        handled = False
+        if cmd == "ltex.addToDictionary":
+            add_server_setting('ltex.dictionary', 
+                               command['arguments'][0]['words'])
+            handled = True
+        if cmd == 'ltex.hideFalsePositives':
+            add_server_setting('ltex.hiddenFalsePositives', 
+                               command['arguments'][0]['falsePositives'])
+            handled = True
+        if cmd == 'ltex.disableRules':
+            add_server_setting('ltex.disabledRules', 
+                               command['arguments'][0]['ruleIds'])
+            handled = True
+
+        if handled:
+            sublime.set_timeout_async(done)
+            return True
+        return False
+
     # Handle protocol extensions
     def m_ltex_workspaceSpecificConfiguration(self, params, request_id):
         session = self.weaksession()
         if not session:
             return
+        settings = sublime.load_settings(SETTINGS_FILENAME)
+        server_settings = settings.get('settings')
         result = []
         for item in params['items']:
             result.append({
-                "dictionary": {},
-                "disabledRules": {},
-                "enabledRules": {},
-                "hiddenFalsePositives": {},
+                "dictionary": server_settings
+                  .get('ltex.dictionary', {}),
+                "disabledRules": server_settings
+                  .get('ltex.disabledRules', {}),
+                "enabledRules": server_settings
+                  .get('ltex.enabledRules', {}),
+                "hiddenFalsePositives": server_settings
+                  .get('ltex.hiddenFalsePositives', {}),
                 })
         session.send_response(Response(request_id, result))
 

@@ -53,9 +53,9 @@
         "ltex.markdown.dummy": [],
         // @see https://valentjn.github.io/vscode-ltex/docs/settings.html#ltexconfigurationtarget
         "ltex.configurationTarget": {
-            "dictionary": "workspaceFolderExternalFile", 
-            "disabledRules": "workspaceFolderExternalFile", 
-            "hiddenFalsePositives": "workspaceFolderExternalFile"
+            "dictionary": "user", 
+            "disabledRules": "user", 
+            "hiddenFalsePositives": "user"
         },
         // Optional mother tongue of the user (e.g., "de-DE").
         "ltex.additionalRules.motherTongue": "",
