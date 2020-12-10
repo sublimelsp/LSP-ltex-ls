@@ -4,7 +4,7 @@ Latex/Markdown grammar check support for Sublime's LSP plugin provided through [
 
 ## Installation
 
-1. Install [LSP](https://packagecontrol.io/packages/LSP) via Package Control. Make sure `java` is in path and `JAVA_HOME` is set.
+1. Install [LSP](https://packagecontrol.io/packages/LSP) via Package Control. Make sure a x64-version of `java` is in path and `JAVA_HOME` is set.
 2. Install this plugin.
 3. Restart Sublime.
 
