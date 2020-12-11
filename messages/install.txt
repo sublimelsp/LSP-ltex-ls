@@ -13,8 +13,7 @@ https://github.com/valentjn/ltex-ls.
 # Language
 
 - Set the language string in the server settings
-- Use comments in latex code, e.g. % LTeX: language=<language_string>
-    -> <language_string> could be for example de-DE, en-EN,...
+- Use magic comments in code, see https://valentjn.github.io/vscode-ltex/docs/advanced-usage.html#magic-comments
 
 
 More information: 
