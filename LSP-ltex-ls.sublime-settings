@@ -94,5 +94,7 @@
         "ltex.checkFrequency": "edit",
         // If set to true, diagnostics of a file are cleared when the file is closed
         "ltex.clearDiagnosticsWhenClosingFile": true,
+        // Java path to use. Should point to the JAVA_HOME/bin directory.
+        "ltex.java.path": ""
     }
 }

@@ -188,9 +188,12 @@ class LTeXLs(AbstractPlugin):
 
     @classmethod
     def additional_variables(cls) -> Optional[Dict[str, str]]:
-        #  settings = sublime.load_settings("LSP-ltex-ls.sublime-settings")
+        settings = sublime.load_settings(SETTINGS_FILENAME)
+        manual_path = settings.get('settings').get('ltex.java.path')
         java_home = os.environ.get("JAVA_HOME")
-        if java_home:
+        if manual_path:
+            java_executable = os.path.join(manual_path, 'java')
+        elif java_home:
             java_executable = os.path.join(java_home, "bin", "java")
         else:
             java_executable = "java"
