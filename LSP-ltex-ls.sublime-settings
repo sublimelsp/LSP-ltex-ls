@@ -29,6 +29,11 @@
     // "" uses the latest release available or the last downloaded version
     // if no internet connection is available.
     "version": "",
+    // By default LSP-ltex-ls downloads the latest release tested by the developer,
+    // if no version is explicitly set.
+    // By setting allow_untested to true this behavior gets overwritten and 
+    // the latest release gets downloaded.
+    "allow_untested": false,
     // The server-specific settings.
     // @see https://valentjn.github.io/vscode-ltex/docs/settings.html
     "settings": {
@@ -89,5 +94,7 @@
         "ltex.checkFrequency": "edit",
         // If set to true, diagnostics of a file are cleared when the file is closed
         "ltex.clearDiagnosticsWhenClosingFile": true,
+        // Java path to use. Should point to the JAVA_HOME/bin directory.
+        "ltex.java.path": ""
     }
 }

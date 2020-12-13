@@ -19,7 +19,8 @@ GITHUB_DL_URL = 'https://github.com/valentjn/ltex-ls/releases/download/'\
 GITHUB_RELEASES_API_URL = 'https://api.github.com/repos/valentjn/ltex-'\
                           'ls/releases/latest'
 SERVER_FOLDER_NAME = 'ltex-ls-{}'  # Format with Release-Tag
-LATEST_RELEASE_TAG = None
+LATEST_TESTED_RELEASE = '8.1.1'  # Latest testet LTEX-LS release
+LATEST_GITHUB_RELEASE = None
 STORAGE_FOLDER_NAME = 'LSP-ltex-ls'
 SETTINGS_FILENAME = 'LSP-ltex-ls.sublime-settings'
 
@@ -85,15 +86,14 @@ def fetch_latest_release() -> None:
     :returns:   Nothing.
     :rtype:     None
     """
-    global LATEST_RELEASE_TAG
-
-    if (LATEST_RELEASE_TAG is None):
+    global LATEST_GITHUB_RELEASE
+    if not LATEST_GITHUB_RELEASE:
         try:
             resp = requests.get(GITHUB_RELEASES_API_URL)
             data = resp.json()
-            LATEST_RELEASE_TAG = data['tag_name']
+            LATEST_GITHUB_RELEASE = data['tag_name']
         except requests.ConnectionError:
-            LATEST_RELEASE_TAG = None
+            pass
 
 
 fetch_latest_release()
@@ -145,7 +145,7 @@ class LTeXLs(AbstractPlugin):
         return os.path.join(cls.storage_path(), STORAGE_FOLDER_NAME)
 
     @classmethod
-    def serverversion(cls):
+    def serverversion(cls) -> str:
         """
         Returns the version of ltex-ls to use. Can be None if
         no version is set in settings and no connection is available and 
@@ -161,24 +161,14 @@ class LTeXLs(AbstractPlugin):
         version = settings.get('version')
         if version:
             return version
-        if LATEST_RELEASE_TAG:
-            return LATEST_RELEASE_TAG
-        # Server offline
-        if not os.path.isdir(cls.basedir()):
-            return None
-        offline_dir = os.listdir(cls.basedir())
-        if not offline_dir:
-            return None
-        offline_dir_split = offline_dir[0].split('-')
-        if len(offline_dir_split) != 3:
-            return None
-        version = offline_dir_split[2]
-        sublime.status_message('ltex-ls: no internet connection available, '
-                               'using server {}'.format(version))
-        return version
+        # Use latest tested release by default but allow overwriting the
+        # behavior.
+        if settings.get('allow_untested') and LATEST_GITHUB_RELEASE:
+            return LATEST_GITHUB_RELEASE
+        return LATEST_TESTED_RELEASE
 
     @classmethod
-    def serverdir(cls):
+    def serverdir(cls) -> str:
         """
         The directory of the server. In here are the "bin" and "lib"
         folders.
@@ -190,26 +180,21 @@ class LTeXLs(AbstractPlugin):
                     Else None
         :rtype:     str
         """
-        if cls.serverversion():
-            return os.path.join(cls.basedir(), SERVER_FOLDER_NAME
-                                .format(cls.serverversion()))
-        else:
-            return None
+        return os.path.join(cls.basedir(), SERVER_FOLDER_NAME
+                            .format(cls.serverversion()))
 
     @classmethod
     def needs_update_or_installation(cls) -> bool:
-        if cls.serverdir():
-            if os.path.isdir(str(cls.serverdir())):
-                return False
-            else:
-                return True
-        return False
+        return not os.path.isdir(str(cls.serverdir()))
 
     @classmethod
     def additional_variables(cls) -> Optional[Dict[str, str]]:
-        #  settings = sublime.load_settings("LSP-ltex-ls.sublime-settings")
+        settings = sublime.load_settings(SETTINGS_FILENAME)
+        manual_path = settings.get('settings').get('ltex.java.path')
         java_home = os.environ.get("JAVA_HOME")
-        if java_home:
+        if manual_path:
+            java_executable = os.path.join(manual_path, 'java')
+        elif java_home:
             java_executable = os.path.join(java_home, "bin", "java")
         else:
             java_executable = "java"
