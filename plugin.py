@@ -19,7 +19,8 @@ GITHUB_DL_URL = 'https://github.com/valentjn/ltex-ls/releases/download/'\
 GITHUB_RELEASES_API_URL = 'https://api.github.com/repos/valentjn/ltex-'\
                           'ls/releases/latest'
 SERVER_FOLDER_NAME = 'ltex-ls-{}'  # Format with Release-Tag
-LATEST_RELEASE_TAG = '8.1.0'  # Latest testet LTEX-LS release
+LATEST_TESTED_RELEASE = '8.1.0'  # Latest testet LTEX-LS release
+LATEST_GITHUB_RELEASE = None
 STORAGE_FOLDER_NAME = 'LSP-ltex-ls'
 SETTINGS_FILENAME = 'LSP-ltex-ls.sublime-settings'
 
@@ -85,21 +86,17 @@ def fetch_latest_release() -> None:
     :returns:   Nothing.
     :rtype:     None
     """
-    global LATEST_RELEASE_TAG
-
-    if (LATEST_RELEASE_TAG is None):
+    global LATEST_GITHUB_RELEASE
+    if not LATEST_GITHUB_RELEASE:
         try:
             resp = requests.get(GITHUB_RELEASES_API_URL)
             data = resp.json()
-            LATEST_RELEASE_TAG = data['tag_name']
+            LATEST_GITHUB_RELEASE = data['tag_name']
         except requests.ConnectionError:
             pass
 
 
-# Use latest tested release by default but allow overwriting the
-# behavior.
-if (sublime.load_settings(SETTINGS_FILENAME).get('allow_untested')):
-    fetch_latest_release()
+fetch_latest_release()
 
 
 def code_action_insert_settings(server_setting_key: str, value: dict):
@@ -164,7 +161,11 @@ class LTeXLs(AbstractPlugin):
         version = settings.get('version')
         if version:
             return version
-        return LATEST_RELEASE_TAG
+        # Use latest tested release by default but allow overwriting the
+        # behavior.
+        if settings.get('allow_untested') and LATEST_GITHUB_RELEASE:
+            return LATEST_GITHUB_RELEASE
+        return LATEST_TESTED_RELEASE
 
     @classmethod
     def serverdir(cls) -> str:
