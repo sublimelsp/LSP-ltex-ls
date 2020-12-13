@@ -19,7 +19,7 @@ GITHUB_DL_URL = 'https://github.com/valentjn/ltex-ls/releases/download/'\
 GITHUB_RELEASES_API_URL = 'https://api.github.com/repos/valentjn/ltex-'\
                           'ls/releases/latest'
 SERVER_FOLDER_NAME = 'ltex-ls-{}'  # Format with Release-Tag
-LATEST_RELEASE_TAG = None
+LATEST_RELEASE_TAG = '8.1.0'  # Latest testet LTEX-LS release
 STORAGE_FOLDER_NAME = 'LSP-ltex-ls'
 SETTINGS_FILENAME = 'LSP-ltex-ls.sublime-settings'
 
@@ -93,10 +93,13 @@ def fetch_latest_release() -> None:
             data = resp.json()
             LATEST_RELEASE_TAG = data['tag_name']
         except requests.ConnectionError:
-            LATEST_RELEASE_TAG = None
+            pass
 
 
-fetch_latest_release()
+# Use latest tested release by default but allow overwriting the
+# behavior.
+if (sublime.load_settings(SETTINGS_FILENAME).get('allow_untested')):
+    fetch_latest_release()
 
 
 def code_action_insert_settings(server_setting_key: str, value: dict):
@@ -145,7 +148,7 @@ class LTeXLs(AbstractPlugin):
         return os.path.join(cls.storage_path(), STORAGE_FOLDER_NAME)
 
     @classmethod
-    def serverversion(cls):
+    def serverversion(cls) -> str:
         """
         Returns the version of ltex-ls to use. Can be None if
         no version is set in settings and no connection is available and 
@@ -161,24 +164,10 @@ class LTeXLs(AbstractPlugin):
         version = settings.get('version')
         if version:
             return version
-        if LATEST_RELEASE_TAG:
-            return LATEST_RELEASE_TAG
-        # Server offline
-        if not os.path.isdir(cls.basedir()):
-            return None
-        offline_dir = os.listdir(cls.basedir())
-        if not offline_dir:
-            return None
-        offline_dir_split = offline_dir[0].split('-')
-        if len(offline_dir_split) != 3:
-            return None
-        version = offline_dir_split[2]
-        sublime.status_message('ltex-ls: no internet connection available, '
-                               'using server {}'.format(version))
-        return version
+        return LATEST_RELEASE_TAG
 
     @classmethod
-    def serverdir(cls):
+    def serverdir(cls) -> str:
         """
         The directory of the server. In here are the "bin" and "lib"
         folders.
@@ -190,20 +179,12 @@ class LTeXLs(AbstractPlugin):
                     Else None
         :rtype:     str
         """
-        if cls.serverversion():
-            return os.path.join(cls.basedir(), SERVER_FOLDER_NAME
-                                .format(cls.serverversion()))
-        else:
-            return None
+        return os.path.join(cls.basedir(), SERVER_FOLDER_NAME
+                            .format(cls.serverversion()))
 
     @classmethod
     def needs_update_or_installation(cls) -> bool:
-        if cls.serverdir():
-            if os.path.isdir(str(cls.serverdir())):
-                return False
-            else:
-                return True
-        return False
+        return not os.path.isdir(str(cls.serverdir()))
 
     @classmethod
     def additional_variables(cls) -> Optional[Dict[str, str]]:
