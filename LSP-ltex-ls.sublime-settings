@@ -86,9 +86,6 @@
         // Severity of the diagnostics corresponding to the grammar and spelling errors.
         "ltex.diagnosticSeverity": "information",
 
-        // shows ltex status in sublime status bar
-        "ltex.statusBarItem": false,
-
         // Controls when documents should be checked.
         // One of "edit", "save", and "manual" (vscode-only).
         "ltex.checkFrequency": "edit",
