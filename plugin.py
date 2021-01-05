@@ -1,7 +1,6 @@
 from LSP.plugin import AbstractPlugin
 from LSP.plugin import register_plugin
 from LSP.plugin import unregister_plugin
-from LSP.plugin import Response
 from LSP.plugin import ClientConfig
 from LSP.plugin import WorkspaceFolder
 from LSP.plugin.core.typing import Optional, Dict, List, Mapping, Any, Callable
@@ -19,7 +18,7 @@ GITHUB_DL_URL = 'https://github.com/valentjn/ltex-ls/releases/download/'\
 GITHUB_RELEASES_API_URL = 'https://api.github.com/repos/valentjn/ltex-'\
                           'ls/releases/latest'
 SERVER_FOLDER_NAME = 'ltex-ls-{}'  # Format with Release-Tag
-LATEST_TESTED_RELEASE = '8.1.1'  # Latest testet LTEX-LS release
+LATEST_TESTED_RELEASE = '9.0.0'  # Latest testet LTEX-LS release
 LATEST_GITHUB_RELEASE = None
 STORAGE_FOLDER_NAME = 'LSP-ltex-ls'
 SETTINGS_FILENAME = 'LSP-ltex-ls.sublime-settings'
@@ -260,44 +259,6 @@ class LTeXLs(AbstractPlugin):
             sublime.set_timeout_async(done)
             return True
         return False
-
-    # Handle protocol extensions
-    def m_ltex_workspaceSpecificConfiguration(self, params, request_id):
-        session = self.weaksession()
-        if not session:
-            return
-        settings = sublime.load_settings(SETTINGS_FILENAME)
-        server_settings = settings.get('settings')
-        result = []
-        for item in params['items']:
-            result.append({
-                "dictionary": server_settings
-                  .get('ltex.dictionary', {}),
-                "disabledRules": server_settings
-                  .get('ltex.disabledRules', {}),
-                "enabledRules": server_settings
-                  .get('ltex.enabledRules', {}),
-                "hiddenFalsePositives": server_settings
-                  .get('ltex.hiddenFalsePositives', {}),
-                })
-        session.send_response(Response(request_id, result))
-
-    def m_ltex_progress(self, params):
-        # notification do not require a response
-        settings = sublime.load_settings(SETTINGS_FILENAME)
-        if not settings.get('settings').get('ltex.statusBarItem'):
-            return
-        if not params or not params['operation']:
-            return
-        if params['operation'] == 'checkDocument':
-            if (params['progress'] == 0):
-                sublime.status_message('ltex-ls: checking: {}'
-                                       .format(params['uri']))
-            else:
-                sublime.status_message('ltex-ls: finished: {}'
-                                       .format(params['uri']))
-        else:
-            sublime.status_message('ltex-ls: unknown operation')
 
 
 def plugin_loaded() -> None:
