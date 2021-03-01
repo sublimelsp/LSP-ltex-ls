@@ -14,11 +14,11 @@ import tarfile
 
 
 GITHUB_DL_URL = 'https://github.com/valentjn/ltex-ls/releases/download/'\
-                    '{0}/ltex-ls-{0}.tar.gz'  # Format with Release-Tag
+                + '{0}/ltex-ls-{0}.tar.gz'  # Format with Release-Tag
 GITHUB_RELEASES_API_URL = 'https://api.github.com/repos/valentjn/ltex-'\
-                          'ls/releases/latest'
+                          + 'ls/releases/latest'
 SERVER_FOLDER_NAME = 'ltex-ls-{}'  # Format with Release-Tag
-LATEST_TESTED_RELEASE = '9.0.1'  # Latest testet LTEX-LS release
+LATEST_TESTED_RELEASE = '10.0.0'  # Latest testet LTEX-LS release
 LATEST_GITHUB_RELEASE = None
 STORAGE_FOLDER_NAME = 'LSP-ltex-ls'
 SETTINGS_FILENAME = 'LSP-ltex-ls.sublime-settings'
