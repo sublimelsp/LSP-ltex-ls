@@ -1,19 +1,6 @@
 {
     // We start this language server when we open LaTex, BibTex and Markdown files.
-    "languages": [
-        {
-            "languageId": "latex",
-            "document_selector": "text.tex",
-        },
-        {
-            "languageId": "bibtex",
-            "document_selector": "text.bibtex",
-        },
-        {
-            "languageId": "markdown",
-            "document_selector": "text.html.markdown",
-        }
-    ],
+    "selector": "text.tex, text.bibtex, text.html.markdown",
     // The startup command.
     // Do not change this unless you know what you do!
     "command": [
