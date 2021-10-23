@@ -1,33 +1,15 @@
 {
     // We start this language server when we open LaTex, BibTex and Markdown files.
-    "languages": [
-        {
-            "languageId": "latex",
-            "document_selector": "text.tex.latex",
-        },
-        {
-            "languageId": "bibtex",
-            "document_selector": "text.bibtex",
-        },
-        {
-            "languageId": "markdown",
-            "document_selector": "text.html.markdown",
-        }
-    ],
+    "selector": "text.tex, text.bibtex, text.html.markdown",
     // The startup command.
     // Do not change this unless you know what you do!
     "command": [
-        "${java_executable}",
-        "-Xms64m",
-        "-Xmx512m",
-        "-classpath",
-        "${serverdir}/lib/ltexls-languagetool-patch-${serverversion}.jar;${serverdir}/lib/*",
-        "-Dapp.name=ltex-ls",
-        "-Dapp.repo=${serverdir}/lib",
-        "-Dapp.home=${serverdir}",
-        "-Dbasedir=${serverdir}",
-        "LtexLanguageServerLauncher",
+        "${serverdir}/bin/${script}",
     ],
+    // Extra variables to override/add to language server's environment.
+    "env": {
+        "JAVA_OPTS": "-Xms64m -Xmx512m",
+    },
     // The version of the server to use. "" or a GitHub release tag
     // "" uses the latest release available or the last downloaded version
     // if no internet connection is available.
@@ -94,7 +76,7 @@
         "ltex.checkFrequency": "edit",
         // If set to true, diagnostics of a file are cleared when the file is closed
         "ltex.clearDiagnosticsWhenClosingFile": true,
-        // Java path to use. Should point to the JAVA_HOME/bin directory.
+        // Java path to use. Should point to the JAVA_HOME/bin directory. Currently disabled.
         "ltex.java.path": ""
     }
 }
