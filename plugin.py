@@ -11,6 +11,7 @@ import tempfile
 import requests
 import time
 import tarfile
+import platform
 
 
 GITHUB_DL_URL = 'https://github.com/valentjn/ltex-ls/releases/download/'\
@@ -18,7 +19,7 @@ GITHUB_DL_URL = 'https://github.com/valentjn/ltex-ls/releases/download/'\
 GITHUB_RELEASES_API_URL = 'https://api.github.com/repos/valentjn/ltex-'\
                           + 'ls/releases/latest'
 SERVER_FOLDER_NAME = 'ltex-ls-{}'  # Format with Release-Tag
-LATEST_TESTED_RELEASE = '11.0.0'  # Latest testet LTEX-LS release
+LATEST_TESTED_RELEASE = '14.1.0'  # Latest testet LTEX-LS release
 LATEST_GITHUB_RELEASE = None
 STORAGE_FOLDER_NAME = 'LSP-ltex-ls'
 SETTINGS_FILENAME = 'LSP-ltex-ls.sublime-settings'
@@ -188,17 +189,8 @@ class LTeXLs(AbstractPlugin):
 
     @classmethod
     def additional_variables(cls) -> Optional[Dict[str, str]]:
-        settings = sublime.load_settings(SETTINGS_FILENAME)
-        manual_path = settings.get('settings').get('ltex.java.path')
-        java_home = os.environ.get("JAVA_HOME")
-        if manual_path:
-            java_executable = os.path.join(manual_path, 'java')
-        elif java_home:
-            java_executable = os.path.join(java_home, "bin", "java")
-        else:
-            java_executable = "java"
         return {
-            "java_executable": java_executable,
+            "script": "ltex-ls.bat" if platform.system() == "Windows" else "ltex-ls",
             "serverdir": cls.serverdir(),
             "serverversion": cls.serverversion()
         }
