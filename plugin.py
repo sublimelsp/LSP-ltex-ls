@@ -19,7 +19,7 @@ GITHUB_DL_URL = 'https://github.com/valentjn/ltex-ls/releases/download/'\
 GITHUB_RELEASES_API_URL = 'https://api.github.com/repos/valentjn/ltex-'\
                           + 'ls/releases/latest'
 SERVER_FOLDER_NAME = 'ltex-ls-{}'  # Format with Release-Tag
-LATEST_TESTED_RELEASE = '14.1.0'  # Latest testet LTEX-LS release
+LATEST_TESTED_RELEASE = '15.2.0'  # Latest testet LTEX-LS release
 LATEST_GITHUB_RELEASE = None
 STORAGE_FOLDER_NAME = 'LSP-ltex-ls'
 SETTINGS_FILENAME = 'LSP-ltex-ls.sublime-settings'
