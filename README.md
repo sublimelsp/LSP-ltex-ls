@@ -8,6 +8,8 @@ Latex/Markdown grammar check support for Sublime's LSP plugin provided through [
 2. Install this plugin.
 3. Restart Sublime.
 
+Note: Currently LSP ignores non-workspace files. Add the folder to Sublime Text to enable the Server.
+
 ## Configuration
 
 Here are some ways to configure the package and the language server.
