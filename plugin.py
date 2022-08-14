@@ -15,7 +15,7 @@ import platform
 
 
 GITHUB_DL_URL = 'https://github.com/valentjn/ltex-ls/releases/download/'\
-                + '{0}/ltex-ls-{0}.tar.gz'  # Format with Release-Tag
+                + '{0}/ltex-ls-{0}{1}'  # Format with Release-Tag
 GITHUB_RELEASES_API_URL = 'https://api.github.com/repos/valentjn/ltex-'\
                           + 'ls/releases/latest'
 SERVER_FOLDER_NAME = 'ltex-ls-{}'  # Format with Release-Tag
@@ -204,7 +204,18 @@ class LTeXLs(AbstractPlugin):
         os.makedirs(cls.basedir())
         with tempfile.TemporaryDirectory() as tempdir:
             tar_path = os.path.join(tempdir, 'server.tar.gz')
-            download_file(GITHUB_DL_URL.format(cls.serverversion()),
+
+            suffix = ".tar.gz" # platform-independent release
+            if os.getenv("JAVA_HOME") is None:
+                p = sublime.platform()
+                if p == "osx":
+                    suffix = "-mac-x64.tar.gz"
+                elif p == "linux":
+                    suffix = "-linux-x64.tar.gz"
+                elif p == "windows":
+                    suffix = "-windows-x64.zip"
+
+            download_file(GITHUB_DL_URL.format(cls.serverversion(), suffix),
                           tar_path,
                           show_download_progress)
             sublime.status_message('ltex-ls: extracting')
