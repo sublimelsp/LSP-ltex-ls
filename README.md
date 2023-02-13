@@ -1,3 +1,5 @@
+Moved to https://github.com/sublimelsp/LSP-ltex-ls
+
 # LSP-ltex-ls
 
 Latex/Markdown grammar check support for Sublime's LSP plugin provided through [valentjn/ltex-ls](https://github.com/valentjn/ltex-ls).
