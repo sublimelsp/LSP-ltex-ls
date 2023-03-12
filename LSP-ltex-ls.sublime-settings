@@ -19,6 +19,8 @@
     // By setting allow_untested to true this behavior gets overwritten and 
     // the latest release gets downloaded.
     "allow_untested": false,
+    // Enable diagnostics even if the file is not within the project folders.
+    "show_non_project_diagnostics": true,
     // The server-specific settings.
     // @see https://valentjn.github.io/vscode-ltex/docs/settings.html
     "settings": {
