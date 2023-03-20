@@ -1,25 +1,27 @@
-from LSP.plugin import AbstractPlugin
-from LSP.plugin import register_plugin
-from LSP.plugin import unregister_plugin
-from LSP.plugin import ClientConfig
-from LSP.plugin import WorkspaceFolder
-from LSP.plugin.core.typing import Optional, Dict, List, Mapping, Any, Callable
 import os
-import sublime
-import shutil
-import tempfile
-import requests
-import time
-import tarfile
 import platform
+import shutil
+import tarfile
+import tempfile
+import time
 
+import requests
+import sublime
+from LSP.plugin import (
+    AbstractPlugin,
+    ClientConfig,
+    WorkspaceFolder,
+    register_plugin,
+    unregister_plugin,
+)
+from LSP.plugin.core.typing import Any, Callable, Dict, List, Mapping, Optional
 
 GITHUB_DL_URL = 'https://github.com/valentjn/ltex-ls/releases/download/'\
                 + '{0}/ltex-ls-{0}{1}'  # Format with Release-Tag
 GITHUB_RELEASES_API_URL = 'https://api.github.com/repos/valentjn/ltex-'\
                           + 'ls/releases/latest'
 SERVER_FOLDER_NAME = 'ltex-ls-{}'  # Format with Release-Tag
-LATEST_TESTED_RELEASE = '15.2.0'  # Latest testet LTEX-LS release
+LATEST_TESTED_RELEASE = '16.0.0'  # Latest testet LTEX-LS release
 LATEST_GITHUB_RELEASE = None
 STORAGE_FOLDER_NAME = 'LSP-ltex-ls'
 SETTINGS_FILENAME = 'LSP-ltex-ls.sublime-settings'
