@@ -247,15 +247,15 @@ class LTeXLs(AbstractPlugin):
 
         cmd = command["command"]
         handled = False
-        if cmd == "ltex.addToDictionary":
+        if cmd == "_ltex.addToDictionary":
             code_action_insert_settings('ltex.dictionary', 
                                         command['arguments'][0]['words'])
             handled = True
-        if cmd == 'ltex.hideFalsePositives':
+        if cmd == '_ltex.hideFalsePositives':
             code_action_insert_settings('ltex.hiddenFalsePositives', 
                                         command['arguments'][0]['falsePositives']) # noqa
             handled = True
-        if cmd == 'ltex.disableRules':
+        if cmd == '_ltex.disableRules':
             code_action_insert_settings('ltex.disabledRules', 
                                         command['arguments'][0]['ruleIds'])
             handled = True
