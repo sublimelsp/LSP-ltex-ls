@@ -4,6 +4,8 @@ import shutil
 import tarfile
 import tempfile
 import time
+import zipfile
+from io import UnsupportedOperation
 
 import requests
 import sublime
@@ -103,10 +105,10 @@ fetch_latest_release()
 
 def code_action_insert_settings(server_setting_key: str, value: dict):
     """
-    Adds a server setting initiated via custom ltex-la codeAction. 
+    Adds a server setting initiated via custom ltex-la codeAction.
     Merges the settings if already present.
     This function is used for the addToDictionary,... custom commands
-    :param      server_setting_key:    The key of the server setting 
+    :param      server_setting_key:    The key of the server setting
                                        (in "settings" block)
     :type       server_setting_key:    str
     :param      value:  A dict of "language": [settings] pairs
@@ -150,7 +152,7 @@ class LTeXLs(AbstractPlugin):
     def serverversion(cls) -> str:
         """
         Returns the version of ltex-ls to use. Can be None if
-        no version is set in settings and no connection is available and 
+        no version is set in settings and no connection is available and
         and no server is available offline.
 
         :param      cls:  The class
@@ -205,7 +207,7 @@ class LTeXLs(AbstractPlugin):
             shutil.rmtree(cls.basedir())
         os.makedirs(cls.basedir())
         with tempfile.TemporaryDirectory() as tempdir:
-            tar_path = os.path.join(tempdir, 'server.tar.gz')
+            archive_path = os.path.join(tempdir, 'server.tar.gz')
 
             suffix = ".tar.gz" # platform-independent release
             if os.getenv("JAVA_HOME") is None:
@@ -218,12 +220,17 @@ class LTeXLs(AbstractPlugin):
                     suffix = "-windows-x64.zip"
 
             download_file(GITHUB_DL_URL.format(cls.serverversion(), suffix),
-                          tar_path,
+                          archive_path,
                           show_download_progress)
             sublime.status_message('ltex-ls: extracting')
-            tar = tarfile.open(tar_path, "r:gz")
-            tar.extractall(tempdir)
-            tar.close()
+            if suffix.endswith("tar.gz"):
+                archive = tarfile.open(archive_path, "r:gz")
+            elif suffix.endswith(".zip"):
+                archive = zipfile.ZipFile(archive_path)
+            else:
+                raise UnsupportedOperation()
+            archive.extractall(tempdir)
+            archive.close()
             shutil.move(os.path.join(tempdir, SERVER_FOLDER_NAME
                                      .format(cls.serverversion())),
                         cls.basedir())
