@@ -31,7 +31,8 @@
             "markdown",
             "org",
             "restructuredtext",
-            "rsweave"
+            "rsweave",
+            "tex"
         ],
         // Enable completition
         // @see https://valentjn.github.io/ltex/settings.html#ltexcompletionenabled
