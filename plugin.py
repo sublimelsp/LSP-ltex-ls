@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import os
 import platform
@@ -7,7 +9,9 @@ import tempfile
 import urllib.error
 import urllib.request
 import zipfile
+from collections.abc import Callable, Mapping
 from io import UnsupportedOperation
+from typing import Any
 
 import sublime
 from LSP.plugin import (
@@ -17,7 +21,6 @@ from LSP.plugin import (
     register_plugin,
     unregister_plugin,
 )
-from LSP.plugin.core.typing import Any, Callable, Dict, List, Mapping, Optional
 
 GITHUB_DL_URL = (
     "https://github.com/valentjn/ltex-ls/releases/download/" + "{0}/ltex-ls-{0}{1}"
@@ -27,9 +30,10 @@ GITHUB_RELEASES_API_URL = (
 )
 SERVER_FOLDER_NAME = "ltex-ls-{}"  # Format with Release-Tag
 LATEST_TESTED_RELEASE = "16.0.0"  # Latest testet LTEX-LS release
-LATEST_GITHUB_RELEASE = None
 STORAGE_FOLDER_NAME = "LSP-ltex-ls"
 SETTINGS_FILENAME = "LSP-ltex-ls.sublime-settings"
+
+g_latest_github_release = None
 
 
 def fetch_latest_release() -> None:
@@ -39,12 +43,12 @@ def fetch_latest_release() -> None:
     :returns:   Nothing.
     :rtype:     None
     """
-    global LATEST_GITHUB_RELEASE
-    if not LATEST_GITHUB_RELEASE:
+    global g_latest_github_release
+    if not g_latest_github_release:
         try:
             with urllib.request.urlopen(GITHUB_RELEASES_API_URL) as f:
                 data = json.loads(f.read().decode("utf-8"))
-                LATEST_GITHUB_RELEASE = data["tag_name"]
+                g_latest_github_release = data["tag_name"]
         except urllib.error.URLError:
             pass
 
@@ -52,7 +56,7 @@ def fetch_latest_release() -> None:
 fetch_latest_release()
 
 
-def code_action_insert_settings(server_setting_key: str, value: dict):
+def code_action_insert_settings(server_setting_key: str, value: dict[str, Any]):
     """
     Adds a server setting initiated via custom ltex-la codeAction.
     Merges the settings if already present.
@@ -76,7 +80,6 @@ def code_action_insert_settings(server_setting_key: str, value: dict):
     server_settings[server_setting_key] = exception_dict
     settings.set("settings", server_settings)
     sublime.save_settings(SETTINGS_FILENAME)
-    pass
 
 
 class LTeXLs(AbstractPlugin):
@@ -116,8 +119,8 @@ class LTeXLs(AbstractPlugin):
             return version
         # Use latest tested release by default but allow overwriting the
         # behavior.
-        if settings.get("allow_untested") and LATEST_GITHUB_RELEASE:
-            return LATEST_GITHUB_RELEASE
+        if settings.get("allow_untested") and g_latest_github_release:
+            return g_latest_github_release
         return LATEST_TESTED_RELEASE
 
     @classmethod
@@ -142,7 +145,7 @@ class LTeXLs(AbstractPlugin):
         return not os.path.isdir(str(cls.serverdir()))
 
     @classmethod
-    def additional_variables(cls) -> Optional[Dict[str, str]]:
+    def additional_variables(cls) -> dict[str, str] | None:
         return {
             "script": "ltex-ls.bat" if platform.system() == "Windows" else "ltex-ls",
             "serverdir": cls.serverdir(),
@@ -187,7 +190,7 @@ class LTeXLs(AbstractPlugin):
                 cls.basedir(),
             )
             sublime.status_message(
-                "ltex-ls: installed ltex-ls {}".format(cls.serverversion())
+                f"ltex-ls: installed ltex-ls {cls.serverversion()}"
             )
 
     @classmethod
@@ -195,10 +198,10 @@ class LTeXLs(AbstractPlugin):
         cls,
         window: sublime.Window,
         initiating_view: sublime.View,
-        workspace_folders: List[WorkspaceFolder],
+        workspace_folders: list[WorkspaceFolder],
         configuration: ClientConfig,
-    ) -> Optional[str]:
-        if not cls.serverdir():
+    ) -> str | None:
+        if not os.path.exists(cls.serverdir()):
             return "Download failed or version could not be determined."
         return None
 
@@ -220,7 +223,7 @@ class LTeXLs(AbstractPlugin):
         if cmd == "_ltex.hideFalsePositives":
             code_action_insert_settings(
                 "ltex.hiddenFalsePositives", command["arguments"][0]["falsePositives"]
-            )  # noqa
+            )
             handled = True
         if cmd == "_ltex.disableRules":
             code_action_insert_settings(
