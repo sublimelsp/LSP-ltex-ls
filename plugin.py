@@ -22,14 +22,10 @@ from LSP.plugin import (
     unregister_plugin,
 )
 
-GITHUB_DL_URL = (
-    "https://github.com/valentjn/ltex-ls/releases/download/" + "{0}/ltex-ls-{0}{1}"
-)  # Format with Release-Tag
 GITHUB_RELEASES_API_URL = (
-    "https://api.github.com/repos/valentjn/ltex-" + "ls/releases/latest"
+    "https://api.github.com/repos/ltex-plus/ltex-ls-plus/releases/latest"
 )
-SERVER_FOLDER_NAME = "ltex-ls-{}"  # Format with Release-Tag
-LATEST_TESTED_RELEASE = "16.0.0"  # Latest testet LTEX-LS release
+LATEST_TESTED_RELEASE = "18.6.1"
 STORAGE_FOLDER_NAME = "LSP-ltex-ls"
 SETTINGS_FILENAME = "LSP-ltex-ls.sublime-settings"
 
@@ -84,23 +80,6 @@ def code_action_insert_settings(server_setting_key: str, value: dict[str, Any]):
 
 class LTeXLs(AbstractPlugin):
     @classmethod
-    def name(cls) -> str:
-        return "ltex-ls"
-
-    @classmethod
-    def basedir(cls) -> str:
-        """
-        The directry of this plugin in Package Storage.
-
-        :param      cls:  The class
-        :type       cls:  type
-
-        :returns:   The path this plugins base directory
-        :rtype:     str
-        """
-        return os.path.join(cls.storage_path(), STORAGE_FOLDER_NAME)
-
-    @classmethod
     def serverversion(cls) -> str:
         """
         Returns the version of ltex-ls to use. Can be None if
@@ -124,6 +103,47 @@ class LTeXLs(AbstractPlugin):
         return LATEST_TESTED_RELEASE
 
     @classmethod
+    def name(cls) -> str:
+        return "ltex-ls"
+
+    @classmethod
+    def lsp_name(cls):
+        if int(cls.serverversion().split(".")[0]) <= 16:
+            return "ltex-ls"
+        else:
+            return "ltex-ls-plus"
+
+    @classmethod
+    def github_dl_url(cls, suffix: str):
+        if int(cls.serverversion().split(".")[0]) <= 16:
+            return (
+                "https://github.com/valentjn/ltex-ls/releases/download/"
+                + "{0}/ltex-ls-{0}{1}".format(cls.serverversion(), suffix)
+            )
+        else:
+            return (
+                "https://github.com/ltex-plus/ltex-ls-plus/releases/download/"
+                + "{0}/ltex-ls-plus-{0}{1}".format(cls.serverversion(), suffix)
+            )
+
+    @classmethod
+    def server_folder_name(cls):
+        return "{}-{}".format(cls.lsp_name(), cls.serverversion())
+
+    @classmethod
+    def basedir(cls) -> str:
+        """
+        The directry of this plugin in Package Storage.
+
+        :param      cls:  The class
+        :type       cls:  type
+
+        :returns:   The path this plugins base directory
+        :rtype:     str
+        """
+        return os.path.join(cls.storage_path(), STORAGE_FOLDER_NAME)
+
+    @classmethod
     def serverdir(cls) -> str:
         """
         The directory of the server. In here are the "bin" and "lib"
@@ -136,9 +156,7 @@ class LTeXLs(AbstractPlugin):
                     Else None
         :rtype:     str
         """
-        return os.path.join(
-            cls.basedir(), SERVER_FOLDER_NAME.format(cls.serverversion())
-        )
+        return os.path.join(cls.basedir(), cls.server_folder_name())
 
     @classmethod
     def needs_update_or_installation(cls) -> bool:
@@ -147,7 +165,8 @@ class LTeXLs(AbstractPlugin):
     @classmethod
     def additional_variables(cls) -> dict[str, str] | None:
         return {
-            "script": "ltex-ls.bat" if platform.system() == "Windows" else "ltex-ls",
+            "script": cls.lsp_name()
+            + (".bat" if platform.system() == "Windows" else ""),
             "serverdir": cls.serverdir(),
             "serverversion": cls.serverversion(),
         }
@@ -173,9 +192,12 @@ class LTeXLs(AbstractPlugin):
                     suffix = "-windows-x64.zip"
 
             sublime.status_message("ltex-ls: downloading")
+
             urllib.request.urlretrieve(
-                GITHUB_DL_URL.format(cls.serverversion(), suffix), archive_path
+                cls.github_dl_url(suffix),
+                archive_path,
             )
+
             sublime.status_message("ltex-ls: extracting")
             if suffix.endswith("tar.gz"):
                 archive = tarfile.open(archive_path, "r:gz")
@@ -186,12 +208,10 @@ class LTeXLs(AbstractPlugin):
             archive.extractall(tempdir)
             archive.close()
             shutil.move(
-                os.path.join(tempdir, SERVER_FOLDER_NAME.format(cls.serverversion())),
+                os.path.join(tempdir, cls.server_folder_name()),
                 cls.basedir(),
             )
-            sublime.status_message(
-                f"ltex-ls: installed ltex-ls {cls.serverversion()}"
-            )
+            sublime.status_message(f"ltex-ls: installed ltex-ls {cls.serverversion()}")
 
     @classmethod
     def can_start(

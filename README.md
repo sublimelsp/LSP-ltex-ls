@@ -1,10 +1,11 @@
 # LSP-ltex-ls
 
-Latex/Markdown grammar check support for Sublime's LSP plugin provided through [valentjn/ltex-ls](https://github.com/valentjn/ltex-ls).
+Latex/Markdown grammar check support for Sublime's LSP plugin provided through [ltex-plus/ltex-ls-plus](https://github.com/ltex-plus/ltex-ls-plus).
+Until version 16 this client used the discontinued [valentjn/ltex-ls](https://github.com/valentjn/ltex-ls) server by Adam Voss.
 
 ## Installation
 
-1. Install [LSP](https://packagecontrol.io/packages/LSP) via Package Control. If you prefer to install [valentjn/ltex-ls](https://github.com/valentjn/ltex-ls) without `java` bundled, make sure a x64-version is in path and `JAVA_HOME` is set.
+1. Install [LSP](https://packagecontrol.io/packages/LSP) via Package Control. If you prefer to install [ltex-plus/ltex-ls-plus](https://github.com/valentjn/ltex-ls) without `java` bundled, make sure a x64-version is in path and `JAVA_HOME` is set.
 2. Install this plugin.
 3. Restart Sublime.
 
