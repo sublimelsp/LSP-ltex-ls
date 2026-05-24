@@ -53,9 +53,6 @@ def fetch_latest_release() -> None:
             pass
 
 
-fetch_latest_release()
-
-
 def code_action_insert_settings(server_setting_key: str, value: dict[str, Any]):
     """
     Adds a server setting initiated via custom ltex-la codeAction.
@@ -142,6 +139,7 @@ class LTeXLs(AbstractPlugin):
 
     @classmethod
     def needs_update_or_installation(cls) -> bool:
+        fetch_latest_release()
         return not os.path.isdir(str(cls.serverdir()))
 
     @classmethod
