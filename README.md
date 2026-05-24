@@ -1,5 +1,8 @@
 # LSP-ltex-ls
 
+> [!WARNING]
+> This package is deprecated. Please migrate to https://github.com/sublimelsp/LSP-ltex-ls-plus.
+
 Latex/Markdown grammar check support for Sublime's LSP plugin provided through [valentjn/ltex-ls](https://github.com/valentjn/ltex-ls).
 
 ## Installation
