@@ -1,0 +1,8 @@
+LSP-ltex-ls 4.0.0
+-----------------
+
+!!!WARNING!!!
+
+This is the last version of this package. It won't get any more updates.
+
+Please remove this package and install its successor from https://packagecontrol.io/packages/LSP-ltex-ls-plus instead.
