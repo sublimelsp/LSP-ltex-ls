@@ -1,0 +1,32 @@
+Breaking changes:
+
+- The key used to override LSP-ltex-ls settings in project settings has changed from `ltex-ls` to `LSP-ltex-ls`.
+  If you use project-specific overrides for LSP-ltex-ls, you have to rename the key for them to apply:
+
+  Before:
+
+  ```jsonc
+  {
+      "settings": {
+          "LSP": {
+              "ltex-ls": {
+                  // ...
+              }
+          }
+      }
+  }
+  ```
+
+  After:
+
+  ```jsonc
+  {
+      "settings": {
+          "LSP": {
+              "LSP-ltex-ls": {
+                  // ...
+              }
+          }
+      }
+  }
+  ```

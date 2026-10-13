@@ -25,7 +25,7 @@ Here are some ways to configure the package and the language server.
   {
      "settings": {
         "LSP": {
-           "ltex-ls": {
+           "LSP-ltex-ls": {
               "settings": {
                  // Put your settings here
               }
