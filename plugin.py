@@ -9,17 +9,17 @@ import tempfile
 import urllib.error
 import urllib.request
 import zipfile
-from collections.abc import Callable, Mapping
 from io import UnsupportedOperation
 from typing import Any
 
 import sublime
 from LSP.plugin import (
-    AbstractPlugin,
     ClientConfig,
-    WorkspaceFolder,
-    register_plugin,
-    unregister_plugin,
+    LspPlugin,
+    OnPreStartContext,
+    PluginStartError,
+    Promise,
+    command_handler,
 )
 
 GITHUB_DL_URL = (
@@ -30,7 +30,6 @@ GITHUB_RELEASES_API_URL = (
 )
 SERVER_FOLDER_NAME = "ltex-ls-{}"  # Format with Release-Tag
 LATEST_TESTED_RELEASE = "16.0.0"  # Latest testet LTEX-LS release
-STORAGE_FOLDER_NAME = "LSP-ltex-ls"
 SETTINGS_FILENAME = "LSP-ltex-ls.sublime-settings"
 
 g_latest_github_release = None
@@ -79,13 +78,22 @@ def code_action_insert_settings(server_setting_key: str, value: dict[str, Any]):
     sublime.save_settings(SETTINGS_FILENAME)
 
 
-class LTeXLs(AbstractPlugin):
+class LTeXLs(LspPlugin):
     @classmethod
-    def name(cls) -> str:
-        return "ltex-ls"
+    def on_pre_start_async(cls, context: OnPreStartContext) -> None:
+        configuration = context.configuration
+        if cls.needs_update_or_installation(configuration):
+            cls.install_or_update(configuration)
+        if not os.path.exists(cls.serverdir(configuration)):
+            raise PluginStartError("Download failed or version could not be determined.")
+        context.variables.update({
+            "script": "ltex-ls.bat" if platform.system() == "Windows" else "ltex-ls",
+            "serverdir": cls.serverdir(configuration),
+            "serverversion": cls.serverversion(configuration),
+        })
 
     @classmethod
-    def basedir(cls) -> str:
+    def storage_path(cls) -> str:
         """
         The directry of this plugin in Package Storage.
 
@@ -95,10 +103,10 @@ class LTeXLs(AbstractPlugin):
         :returns:   The path this plugins base directory
         :rtype:     str
         """
-        return os.path.join(cls.storage_path(), STORAGE_FOLDER_NAME)
+        return str(cls.plugin_storage_path)
 
     @classmethod
-    def serverversion(cls) -> str:
+    def serverversion(cls, configuration: ClientConfig) -> str:
         """
         Returns the version of ltex-ls to use. Can be None if
         no version is set in settings and no connection is available and
@@ -106,11 +114,13 @@ class LTeXLs(AbstractPlugin):
 
         :param      cls:  The class
         :type       cls:  type
+        :param      configuration:  The session's configuration
+        :type       configuration:  ClientConfig
 
         :returns:   The version of ltex-ls to use. Can be None.
         :rtype:     str
         """
-        settings = sublime.load_settings(SETTINGS_FILENAME)
+        settings = configuration.root_settings
         version = settings.get("version")
         if version:
             return version
@@ -121,42 +131,37 @@ class LTeXLs(AbstractPlugin):
         return LATEST_TESTED_RELEASE
 
     @classmethod
-    def serverdir(cls) -> str:
+    def serverdir(cls, configuration: ClientConfig) -> str:
         """
         The directory of the server. In here are the "bin" and "lib"
         folders.
 
         :param      cls:  The class
         :type       cls:  type
+        :param      configuration:  The session's configuration
+        :type       configuration:  ClientConfig
 
         :returns:   The server directory if a version can be determined.
                     Else None
         :rtype:     str
         """
         return os.path.join(
-            cls.basedir(), SERVER_FOLDER_NAME.format(cls.serverversion())
+            cls.storage_path(), SERVER_FOLDER_NAME.format(cls.serverversion(configuration))
         )
 
     @classmethod
-    def needs_update_or_installation(cls) -> bool:
+    def needs_update_or_installation(cls, configuration: ClientConfig) -> bool:
         fetch_latest_release()
-        return not os.path.isdir(str(cls.serverdir()))
+        return not os.path.isdir(str(cls.serverdir(configuration)))
 
     @classmethod
-    def additional_variables(cls) -> dict[str, str] | None:
-        return {
-            "script": "ltex-ls.bat" if platform.system() == "Windows" else "ltex-ls",
-            "serverdir": cls.serverdir(),
-            "serverversion": cls.serverversion(),
-        }
-
-    @classmethod
-    def install_or_update(cls) -> None:
-        if not cls.serverversion():
+    def install_or_update(cls, configuration: ClientConfig) -> None:
+        version = cls.serverversion(configuration)
+        if not version:
             return
-        if os.path.isdir(cls.basedir()):
-            shutil.rmtree(cls.basedir())
-        os.makedirs(cls.basedir())
+        if os.path.isdir(cls.storage_path()):
+            shutil.rmtree(cls.storage_path())
+        os.makedirs(cls.storage_path())
         with tempfile.TemporaryDirectory() as tempdir:
             archive_path = os.path.join(tempdir, "server.tar.gz")
 
@@ -172,7 +177,7 @@ class LTeXLs(AbstractPlugin):
 
             sublime.status_message("ltex-ls: downloading")
             urllib.request.urlretrieve(
-                GITHUB_DL_URL.format(cls.serverversion(), suffix), archive_path
+                GITHUB_DL_URL.format(version, suffix), archive_path
             )
             sublime.status_message("ltex-ls: extracting")
             if suffix.endswith("tar.gz"):
@@ -184,60 +189,36 @@ class LTeXLs(AbstractPlugin):
             archive.extractall(tempdir)
             archive.close()
             shutil.move(
-                os.path.join(tempdir, SERVER_FOLDER_NAME.format(cls.serverversion())),
-                cls.basedir(),
+                os.path.join(tempdir, SERVER_FOLDER_NAME.format(version)),
+                cls.storage_path(),
             )
             sublime.status_message(
-                f"ltex-ls: installed ltex-ls {cls.serverversion()}"
+                f"ltex-ls: installed ltex-ls {version}"
             )
-
-    @classmethod
-    def can_start(
-        cls,
-        window: sublime.Window,
-        initiating_view: sublime.View,
-        workspace_folders: list[WorkspaceFolder],
-        configuration: ClientConfig,
-    ) -> str | None:
-        if not os.path.exists(cls.serverdir()):
-            return "Download failed or version could not be determined."
-        return None
 
     # Handle custom commands
-    def on_pre_server_command(
-        self, command: Mapping[str, Any], done_callback: Callable[[], None]
-    ) -> bool:
-        session = self.weaksession()
-        if not session:
-            return False
+    @command_handler("_ltex.addToDictionary")
+    def on_add_to_dictionary(self, arguments: list[Any] | None) -> Promise[None]:
+        if arguments:
+            code_action_insert_settings("ltex.dictionary", arguments[0]["words"])
+        return Promise.resolve(None)
 
-        cmd = command["command"]
-        handled = False
-        if cmd == "_ltex.addToDictionary":
-            code_action_insert_settings(
-                "ltex.dictionary", command["arguments"][0]["words"]
-            )
-            handled = True
-        if cmd == "_ltex.hideFalsePositives":
-            code_action_insert_settings(
-                "ltex.hiddenFalsePositives", command["arguments"][0]["falsePositives"]
-            )
-            handled = True
-        if cmd == "_ltex.disableRules":
-            code_action_insert_settings(
-                "ltex.disabledRules", command["arguments"][0]["ruleIds"]
-            )
-            handled = True
+    @command_handler("_ltex.hideFalsePositives")
+    def on_hide_false_positives(self, arguments: list[Any] | None) -> Promise[None]:
+        if arguments:
+            code_action_insert_settings("ltex.hiddenFalsePositives", arguments[0]["falsePositives"])
+        return Promise.resolve(None)
 
-        if handled:
-            sublime.set_timeout_async(done_callback)
-            return True
-        return False
+    @command_handler("_ltex.disableRules")
+    def on_disable_rules(self, arguments: list[Any] | None) -> Promise[None]:
+        if arguments:
+            code_action_insert_settings("ltex.disabledRules", arguments[0]["ruleIds"])
+        return Promise.resolve(None)
 
 
 def plugin_loaded() -> None:
-    register_plugin(LTeXLs)
+    LTeXLs.register()
 
 
 def plugin_unloaded() -> None:
-    unregister_plugin(LTeXLs)
+    LTeXLs.unregister()
