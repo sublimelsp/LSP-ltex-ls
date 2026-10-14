@@ -1,0 +1,8 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/sublimelsp/lsp_smoke_test/v1/smoke.schema.json
+file: sample.md
+# The session name until the package is migrated to LspPlugin.
+server: ltex-ls
+expected_diagnostics:
+  source: LTeX
+# Starting the server includes downloading it.
+diagnostics_timeout: 240
