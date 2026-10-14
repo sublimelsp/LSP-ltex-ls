@@ -91,7 +91,7 @@ class LTeXLs(LspPlugin):
         })
 
     @classmethod
-    def basedir(cls) -> str:
+    def storage_path(cls) -> str:
         """
         The directry of this plugin in Package Storage.
 
@@ -140,7 +140,7 @@ class LTeXLs(LspPlugin):
         :rtype:     str
         """
         return os.path.join(
-            cls.basedir(), SERVER_FOLDER_NAME.format(cls.serverversion())
+            cls.storage_path(), SERVER_FOLDER_NAME.format(cls.serverversion())
         )
 
     @classmethod
@@ -152,9 +152,9 @@ class LTeXLs(LspPlugin):
     def install_or_update(cls) -> None:
         if not cls.serverversion():
             return
-        if os.path.isdir(cls.basedir()):
-            shutil.rmtree(cls.basedir())
-        os.makedirs(cls.basedir())
+        if os.path.isdir(cls.storage_path()):
+            shutil.rmtree(cls.storage_path())
+        os.makedirs(cls.storage_path())
         with tempfile.TemporaryDirectory() as tempdir:
             archive_path = os.path.join(tempdir, "server.tar.gz")
 
@@ -183,7 +183,7 @@ class LTeXLs(LspPlugin):
             archive.close()
             shutil.move(
                 os.path.join(tempdir, SERVER_FOLDER_NAME.format(cls.serverversion())),
-                cls.basedir(),
+                cls.storage_path(),
             )
             sublime.status_message(
                 f"ltex-ls: installed ltex-ls {cls.serverversion()}"
