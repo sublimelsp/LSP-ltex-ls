@@ -14,6 +14,7 @@ from typing import Any
 
 import sublime
 from LSP.plugin import (
+    ClientConfig,
     LspPlugin,
     OnPreStartContext,
     PluginStartError,
@@ -80,14 +81,15 @@ def code_action_insert_settings(server_setting_key: str, value: dict[str, Any]):
 class LTeXLs(LspPlugin):
     @classmethod
     def on_pre_start_async(cls, context: OnPreStartContext) -> None:
-        if cls.needs_update_or_installation():
-            cls.install_or_update()
-        if not os.path.exists(cls.serverdir()):
+        configuration = context.configuration
+        if cls.needs_update_or_installation(configuration):
+            cls.install_or_update(configuration)
+        if not os.path.exists(cls.serverdir(configuration)):
             raise PluginStartError("Download failed or version could not be determined.")
         context.variables.update({
             "script": "ltex-ls.bat" if platform.system() == "Windows" else "ltex-ls",
-            "serverdir": cls.serverdir(),
-            "serverversion": cls.serverversion(),
+            "serverdir": cls.serverdir(configuration),
+            "serverversion": cls.serverversion(configuration),
         })
 
     @classmethod
@@ -104,7 +106,7 @@ class LTeXLs(LspPlugin):
         return str(cls.plugin_storage_path)
 
     @classmethod
-    def serverversion(cls) -> str:
+    def serverversion(cls, configuration: ClientConfig) -> str:
         """
         Returns the version of ltex-ls to use. Can be None if
         no version is set in settings and no connection is available and
@@ -112,11 +114,13 @@ class LTeXLs(LspPlugin):
 
         :param      cls:  The class
         :type       cls:  type
+        :param      configuration:  The session's configuration
+        :type       configuration:  ClientConfig
 
         :returns:   The version of ltex-ls to use. Can be None.
         :rtype:     str
         """
-        settings = sublime.load_settings(SETTINGS_FILENAME)
+        settings = configuration.root_settings
         version = settings.get("version")
         if version:
             return version
@@ -127,30 +131,33 @@ class LTeXLs(LspPlugin):
         return LATEST_TESTED_RELEASE
 
     @classmethod
-    def serverdir(cls) -> str:
+    def serverdir(cls, configuration: ClientConfig) -> str:
         """
         The directory of the server. In here are the "bin" and "lib"
         folders.
 
         :param      cls:  The class
         :type       cls:  type
+        :param      configuration:  The session's configuration
+        :type       configuration:  ClientConfig
 
         :returns:   The server directory if a version can be determined.
                     Else None
         :rtype:     str
         """
         return os.path.join(
-            cls.storage_path(), SERVER_FOLDER_NAME.format(cls.serverversion())
+            cls.storage_path(), SERVER_FOLDER_NAME.format(cls.serverversion(configuration))
         )
 
     @classmethod
-    def needs_update_or_installation(cls) -> bool:
+    def needs_update_or_installation(cls, configuration: ClientConfig) -> bool:
         fetch_latest_release()
-        return not os.path.isdir(str(cls.serverdir()))
+        return not os.path.isdir(str(cls.serverdir(configuration)))
 
     @classmethod
-    def install_or_update(cls) -> None:
-        if not cls.serverversion():
+    def install_or_update(cls, configuration: ClientConfig) -> None:
+        version = cls.serverversion(configuration)
+        if not version:
             return
         if os.path.isdir(cls.storage_path()):
             shutil.rmtree(cls.storage_path())
@@ -170,7 +177,7 @@ class LTeXLs(LspPlugin):
 
             sublime.status_message("ltex-ls: downloading")
             urllib.request.urlretrieve(
-                GITHUB_DL_URL.format(cls.serverversion(), suffix), archive_path
+                GITHUB_DL_URL.format(version, suffix), archive_path
             )
             sublime.status_message("ltex-ls: extracting")
             if suffix.endswith("tar.gz"):
@@ -182,11 +189,11 @@ class LTeXLs(LspPlugin):
             archive.extractall(tempdir)
             archive.close()
             shutil.move(
-                os.path.join(tempdir, SERVER_FOLDER_NAME.format(cls.serverversion())),
+                os.path.join(tempdir, SERVER_FOLDER_NAME.format(version)),
                 cls.storage_path(),
             )
             sublime.status_message(
-                f"ltex-ls: installed ltex-ls {cls.serverversion()}"
+                f"ltex-ls: installed ltex-ls {version}"
             )
 
     # Handle custom commands
