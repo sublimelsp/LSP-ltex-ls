@@ -5,10 +5,17 @@
     // Do not change this unless you know what you do!
     "command": [
         "${serverdir}/bin/${script}",
+        "--server-type=TcpSocket",
+        "--port=${port}",
     ],
+    // Communicate over TCP since LanguageTool prints warnings to stdout, which would
+    // corrupt the communication over stdio. 0 picks a free port.
+    "tcp_port": 0,
     // Extra variables to override/add to language server's environment.
     "env": {
-        "JAVA_OPTS": "-Xms64m -Xmx512m",
+        // -Djdk.xml.totalEntitySizeLimit=0 is needed on Java 24+, which otherwise fails to load
+        // LanguageTool's English grammar rules ("Could not activate rules").
+        "JAVA_OPTS": "-Xms64m -Xmx512m -Djdk.xml.totalEntitySizeLimit=0",
     },
     // The version of the server to use. "" or a GitHub release tag
     // "" uses the latest release available or the last downloaded version
